@@ -10,13 +10,10 @@ import time
 mlflow.set_tracking_uri(os.getenv("MLFLOW_TRACKING_URI"))
 mlflow.set_experiment("diabetes_inference_monitoring_mcp")
 
-mcp = FastMCP(title="Diabetes Prediction API")
+mcp = FastMCP("Diabetes Prediction API")
 
-# -------------------------
-# Load model + scaler
-# -------------------------
-MODEL_URI = "models:/diabetes_rf_model/Latest"
-model = mlflow.pyfunc.load_model(MODEL_URI)
+
+model = joblib.load("exports/model.pkl")
 
 scaler = joblib.load("exports/min_scaler.pkl")
 
@@ -93,4 +90,4 @@ def predict_diabetes(
             }
             
 if __name__ == "__main__":
-    mcp.run("streamable-http", host="0.0.0.0", port=8001)
+    mcp.run("streamable-http")

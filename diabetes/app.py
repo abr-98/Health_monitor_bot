@@ -7,14 +7,37 @@ import os
 
 import time
 
+import mlflow
+import os
+
+def wait_for_mlflow():
+    uri = os.getenv("MLFLOW_TRACKING_URI")
+
+    for i in range(10):
+        try:
+            mlflow.set_tracking_uri(uri)
+            mlflow.get_experiment_by_name("test")
+            print("Connected to MLflow")
+            return
+        except Exception as e:
+            print(f"Waiting for MLflow... ({i+1}/10)")
+            time.sleep(3)
+
+    raise Exception("MLflow not available")
+
+app = FastAPI(title="Diabetes Prediction API")
+
+
+@app.on_event("startup")
+def startup():
+    wait_for_mlflow()
+
+    
+
 mlflow.set_tracking_uri(os.getenv("MLFLOW_TRACKING_URI"))
 mlflow.set_experiment("diabetes_inference_monitoring")
 
-# -------------------------
-# Load model + scaler
-# -------------------------
-MODEL_URI = "models:/diabetes_rf_model/Latest"
-model = mlflow.pyfunc.load_model(MODEL_URI)
+
 
 scaler = joblib.load("exports/min_scaler.pkl")
 
@@ -34,8 +57,10 @@ class DiabetesInput(BaseModel):
 # -------------------------
 # App
 # -------------------------
-app = FastAPI(title="Diabetes Prediction API")
 
+
+
+model = joblib.load("exports/model.pkl")
 
 @app.get("/")
 def home():
