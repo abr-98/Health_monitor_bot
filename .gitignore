@@ -1,0 +1,32 @@
+# MLflow
+mlruns/
+
+# Python
+__pycache__/
+*.pyc
+
+# Virtual env
+venv/
+env/
+
+# Models
+*.pkl
+*.joblib
+*.h5
+*.pt
+
+# Data
+data/
+*.csv
+
+# Logs
+*.log
+
+# Mac
+.DS_Store
+
+**/mlflow.db
+mcp_proj/
+datasets/
+
+.venv/
