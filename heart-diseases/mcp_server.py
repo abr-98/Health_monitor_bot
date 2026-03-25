@@ -10,7 +10,7 @@ import time
 mlflow.set_tracking_uri(os.getenv("MLFLOW_TRACKING_URI"))
 mlflow.set_experiment("heart_disease_inference_monitoring_mcp")
 
-mcp = FastMCP("Heart Disease Prediction API")
+mcp = FastMCP("Heart Disease Prediction API",host="0.0.0.0", stateless_http=True)
 
 
 model = joblib.load("exports/model.pkl")
@@ -34,7 +34,7 @@ COLUMNS = [
 ]
 
 @mcp.tool()
-def predict_diabetes(
+def predict_heart_disease(
     age: int,
     sex: int,
     chest_pain_type: int,
@@ -49,6 +49,29 @@ def predict_diabetes(
     major_vessels: int,
     thalasemia: int,
 ) -> dict:
+    
+    """_summary_
+        "name": "heart_disease",
+        "description": "Predicts the likelihood of heart disease based on patient data.",
+        "input_schema": {
+            "age": "integer",
+            "sex": "integer",
+            "chest_pain_type": "integer",
+            "resting_blood_pressure": "integer",
+            "cholestrol": "integer",
+            "fasting_blood_sugar": "integer",
+            "resting_ecg": "integer",
+            "max_heart_rate": "integer",
+            "exercise_induced_angina": "integer",
+            "depression_induced_by_exercise": "float",
+            "slope": "integer",
+            "major_vessels": "integer",
+            "thalasemia": "integer"
+        },
+        Returns:
+            "heart_disease_risk": "float"
+        }
+    """
     
     try:
         with mlflow.start_run(run_name="inference", nested=True):

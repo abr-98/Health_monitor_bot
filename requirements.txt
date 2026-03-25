@@ -1,0 +1,14 @@
+mlflow
+pandas
+numpy
+scikit-learn
+fastapi
+uvicorn
+pydantic
+requests
+ipykernel
+fastmcp
+langchain
+openai
+langchain-openai
+langchain-mcp-adapters

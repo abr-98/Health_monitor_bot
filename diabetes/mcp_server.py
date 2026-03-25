@@ -10,7 +10,7 @@ import time
 mlflow.set_tracking_uri(os.getenv("MLFLOW_TRACKING_URI"))
 mlflow.set_experiment("diabetes_inference_monitoring_mcp")
 
-mcp = FastMCP("Diabetes Prediction API")
+mcp = FastMCP("Diabetes Prediction API",host="0.0.0.0", stateless_http=True)
 
 
 model = joblib.load("exports/model.pkl")
@@ -39,6 +39,22 @@ def predict_diabetes(
     DiabetesPedigreeFunction: float,
     Age: int,
 ) -> dict:
+    
+    """_summary_
+        "name": "diabetes",
+        "description": "Predicts the likelihood of diabetes based on patient data.",
+        "input_schema": {
+            "age": "integer",
+            "bmi": "float",
+            "blood_pressure": "float",
+            "glucose_level": "float",
+            "insulin_level": "float",
+            "skin_thickness": "float",
+            "pregnancies": "integer"
+        },
+    Returns:
+        "diabetes_risk": "float"
+    """
     
     try:
         with mlflow.start_run(run_name="inference", nested=True):
@@ -90,4 +106,7 @@ def predict_diabetes(
             }
             
 if __name__ == "__main__":
-    mcp.run("streamable-http")
+    mcp.run(transport= "streamable-http")
+    
+    
+    
