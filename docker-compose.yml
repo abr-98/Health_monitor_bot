@@ -1,0 +1,83 @@
+version: "3.9"
+
+services:
+
+  mlflow:
+    build:
+      context: .
+      dockerfile: Dockerfile.mlflow
+    container_name: mlflow
+    volumes:
+      - /Users/abhijit/Desktop/Stock_Project/mlFlow_and_mcp/mlruns:/app/mlruns
+      - /Users/abhijit/Desktop/Stock_Project/mlFlow_and_mcp/mlflow.db:/app/mlflow.db
+    command: >
+        mlflow server
+          --backend-store-uri sqlite:///mlflow.db
+          --default-artifact-root /app/mlruns
+          --host 0.0.0.0
+          --port 5000
+          --allowed-hosts "*"
+    ports:
+      - "5001:5000"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 15s
+
+  diabetes_api:
+    build:
+      context: ./diabetes
+      dockerfile: Dockerfile.api
+    container_name: fastapi_app_diabetes
+    depends_on:
+      mlflow:
+        condition: service_healthy
+
+    environment:
+      - MLFLOW_TRACKING_URI=http://mlflow:5000
+    ports:
+      - "8001:8001"
+
+  diabetes_mcp:
+    build:
+      context: ./diabetes
+      dockerfile: Dockerfile.mcp
+    container_name: mcp_server_diabetes
+    depends_on:
+      mlflow:
+        condition: service_healthy
+
+    environment:
+      - MLFLOW_TRACKING_URI=http://mlflow:5000
+    ports:
+      - "8000:8000"
+
+  heart_diseases_api:
+    build:
+      context: ./heart-diseases
+      dockerfile: Dockerfile.api
+    container_name: fastapi_app_heart_diseases
+    depends_on:
+      mlflow:
+        condition: service_healthy
+
+    environment:
+      - MLFLOW_TRACKING_URI=http://mlflow:5000
+    ports:
+      - "8011:8001"
+
+  heart_diseases_mcp:
+    build:
+      context: ./heart-diseases
+      dockerfile: Dockerfile.mcp
+    container_name: mcp_server_heart_diseases
+    depends_on:
+      mlflow:
+        condition: service_healthy
+
+    environment:
+      - MLFLOW_TRACKING_URI=http://mlflow:5000
+    ports:
+      - "8010:8000"
